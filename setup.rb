@@ -1,14 +1,26 @@
 #------------------------------------------------------------------------------
-# Check Bundle Dependencies
+# Setup and Check Bundle Dependencies
 #------------------------------------------------------------------------------
+DefaultDeps = [
+  ['rake',   '>= 0'],
+  ['rscons', '>= 0']
+]
+
+# Generate a default Gemfile if none exists
+if not File.exists? "Gemfile"
+  File.open("Gemfile","w") do |f|
+    DefaultDeps.each {|d| f.puts("gem '#{d[0]}', '#{d[1]}'") }
+  end
+end
+
+# Check that we have the right dependencies
 require 'bundler'
 begin
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
   raise LoadError.new("Unable to Bundler.setup(): Please run 'bundle install': #{e.message}")
 end
-require 'rake'
-require 'rscons'
+DefaultDeps.each {|d| require d[0] }
 require_relative 'toolsets'
 
 #------------------------------------------------------------------------------
