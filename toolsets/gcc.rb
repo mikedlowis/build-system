@@ -36,6 +36,8 @@ module Toolsets
 
         "OBJDUMP" => "objdump",
         "OBJSUFFIX" => ".o",
+
+        "defines" => []
       }
       default_vars.each_pair do |var, val|
         env[var] = val
