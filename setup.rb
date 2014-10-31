@@ -2,8 +2,10 @@
 # Setup and Check Bundle Dependencies
 #------------------------------------------------------------------------------
 DefaultDeps = [
-  ['rake',   '>= 0'],
-  ['rscons', '>= 0']
+  ['rake',    '>= 0'],
+  ['rscons',  '>= 0'],
+  ['rspec',   '>= 0'],
+  ['trollop', '>= 0']
 ]
 
 # Generate a default Gemfile if none exists
@@ -22,6 +24,16 @@ rescue Bundler::BundlerError => e
 end
 DefaultDeps.each {|d| require d[0] }
 require_relative 'toolsets'
+
+#------------------------------------------------------------------------------
+# Command Options
+#------------------------------------------------------------------------------
+Opts = Trollop::options do
+  opt :verbose, "Echo commands being executed", :short => 'v'
+  opt :clean,   "Clean all generated files",    :short => 'c'
+  opt :purge,   "Purges all generated files and directories", :short => 'p'
+  opt :define,  "Define or override a cosntruction variable", :type => :strings, :short => 'D'
+end
 
 #------------------------------------------------------------------------------
 # Environment Manager
@@ -45,6 +57,7 @@ class BuildEnv < Rscons::Environment
   attr_reader :toolset
 
   def initialize(options = {})
+    options[:echo] = :command if Opts[:verbose]
     super(options)
     BuildEnvManager.register(self)
   end
@@ -60,5 +73,13 @@ class BuildEnv < Rscons::Environment
 end
 
 # Make sure we process any environments before rake exits
-at_exit { BuildEnvManager.process }
+at_exit do
+  if Opts[:purge]
+    FileUtils.rm_rf('build/')
+  elsif Opts[:clean]
+    Rscons.clean
+  else
+    BuildEnvManager.process
+  end
+end
 
