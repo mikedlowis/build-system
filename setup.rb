@@ -11,6 +11,7 @@ DefaultDeps = [
 # Generate a default Gemfile if none exists
 if not File.exists? "Gemfile"
   File.open("Gemfile","w") do |f|
+    f.puts "source 'https://rubygems.org'"
     DefaultDeps.each {|d| f.puts("gem '#{d[0]}', '#{d[1]}'") }
   end
 end
@@ -32,7 +33,8 @@ Opts = Trollop::options do
   opt :verbose, "Echo commands being executed", :short => 'v'
   opt :clean,   "Clean all generated files",    :short => 'c'
   opt :purge,   "Purges all generated files and directories", :short => 'p'
-  opt :define,  "Define or override a cosntruction variable", :type => :strings, :short => 'D'
+  opt :define,  "Define or override construction variable(s)", :type => :strings, :short => 'D'
+  opt :profile, "Selects the profile(s) under which the project wil be built", :type => :strings, :short => 'P'
 end
 
 #------------------------------------------------------------------------------
