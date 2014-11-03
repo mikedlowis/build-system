@@ -2,10 +2,9 @@
 # Setup and Check Bundle Dependencies
 #------------------------------------------------------------------------------
 DefaultDeps = [
-  ['rake',    '>= 0'],
-  ['rscons',  '>= 0'],
-  ['rspec',   '>= 0'],
-  ['trollop', '>= 0']
+  ['rake',   '>= 0'],
+  ['rscons', '>= 0'],
+  ['rspec',  '>= 0'],
 ]
 
 # Generate a default Gemfile if none exists
@@ -29,13 +28,25 @@ require_relative 'toolsets'
 #------------------------------------------------------------------------------
 # Command Options
 #------------------------------------------------------------------------------
-Opts = Trollop::options do
-  opt :verbose, "Echo commands being executed", :short => 'v'
-  opt :clean,   "Clean all generated files",    :short => 'c'
-  opt :purge,   "Purges all generated files and directories", :short => 'p'
-  opt :define,  "Define or override construction variable(s)", :type => :strings, :short => 'D'
-  opt :profile, "Selects the profile(s) under which the project wil be built", :type => :strings, :short => 'P'
-end
+require 'optparse'
+Opts = { :define  => [], :profile => [] }
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{$PROGRAM_NAME} [options]"
+  [[:verbose, "-v", "--verbose",      "Echo commands being executed"],
+   [:clean,   "-c", "--clean",        "Clean all generated files"],
+   [:purge,   "-p", "--purge",        "Purge all generated files and directories"],
+   [:define,  "-D", "--define VAR",   "Define or override construction variable(s)"],
+   [:profile, "-P", "--profile NAME", "Selects the profile(s) under which the project will be built"]
+  ].each do |cfg|
+    opts.on( *cfg[1..3] ) do |opt|
+      if Opts[cfg[0]]
+        Opts[cfg[0]] << opt
+      else
+        Opts[cfg[0]] = [opt]
+      end
+    end
+  end
+end.parse!
 
 #------------------------------------------------------------------------------
 # Environment Manager
