@@ -32,18 +32,14 @@ require 'optparse'
 Opts = { :define  => [], :profile => [] }
 OptionParser.new do |opts|
   opts.banner = "Usage: #{$PROGRAM_NAME} [options]"
-  [[:verbose, "-v", "--verbose",      "Echo commands being executed"],
-   [:clean,   "-c", "--clean",        "Clean all generated files"],
-   [:purge,   "-p", "--purge",        "Purge all generated files and directories"],
-   [:define,  "-D", "--define VAR",   "Define or override construction variable(s)"],
-   [:profile, "-P", "--profile NAME", "Selects the profile(s) under which the project will be built"]
+  [[:verbose, "-v", "--verbose",               "Echo commands being executed"],
+   [:clean,   "-c", "--clean",                 "Clean all generated files"],
+   [:purge,   "-p", "--purge",                 "Purge all generated files and directories"],
+   [:define,  "-D", "--define VAR",    String, "Define or override a construction variable"],
+   [:profile, "-P", "--profile x,y,z", Array,  "Selects the profile(s) under which the project will be built"]
   ].each do |cfg|
-    opts.on( *cfg[1..3] ) do |opt|
-      if Opts[cfg[0]]
-        Opts[cfg[0]] << opt
-      else
-        Opts[cfg[0]] = [opt]
-      end
+    opts.on( *cfg[1..-1] ) do |opt|
+      Opts[cfg[0]] = (opt.is_a? Array) ? (Opts[cfg[0]] + opt) : opt
     end
   end
 end.parse!
